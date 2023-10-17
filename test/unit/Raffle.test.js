@@ -5,18 +5,12 @@ const { assert, expect } = require("chai");
 !developmentChains.includes(network.name)
     ? describe.skip
     : describe("Raffle", function () {
-          let deployer,
-              accounts,
-              VRFCoordinatorV2Mock,
-              raffle,
-              raffleAddress,
-              raffleEntranceFee,
-              interval;
+          let deployer, VRFCoordinatorV2Mock, raffle, raffleAddress, raffleEntranceFee, interval;
           const chainId = network.config.chainId;
 
           beforeEach(async function () {
               deployer = (await getNamedAccounts()).deployer;
-              accounts = await ethers.getSigners();
+
               const deployerSigner = await ethers.getSigner(deployer);
               const Deployments = await deployments.fixture(["all"]);
               raffleAddress = Deployments.Raffle.address;
@@ -164,6 +158,7 @@ const { assert, expect } = require("chai");
               it("picks a winner, resets the lottery and sends money", async function () {
                   const additionalEntrants = 3;
                   const startingAccountIndex = 1;
+                  const accounts = await ethers.getSigners();
 
                   for (
                       let i = startingAccountIndex;
@@ -181,7 +176,6 @@ const { assert, expect } = require("chai");
                           console.log("WinnerPicked event fired!");
                           try {
                               const recentWinner = await raffle.getRecentWinner();
-
                               console.log(recentWinner);
                               const raffleState = await raffle.getRaffleState();
                               const endingTimeStamp = await raffle.getLastTimeStamp();
@@ -196,13 +190,20 @@ const { assert, expect } = require("chai");
                           resolve();
                       });
                       const tx = await raffle.performUpkeep("0x");
-                      const txReceipt = tx.wait(1);
+                      const txReceipt = await tx.wait(1);
 
                       await VRFCoordinatorV2Mock.fulfillRandomWords(
                           txReceipt.logs[1].args.requestId,
-                      ),
-                          raffleAddress;
+                          raffleAddress,
+                      );
                   });
+
+                  //   await expect(
+                  //       VRFCoordinatorV2Mock.fulfillRandomWords(
+                  //           txReceipt.logs[1].args.requestId,
+                  //           raffleAddress,
+                  //       ),
+                  //   ).to.emit(raffle, "WinnerPicked");
               });
           });
       });
