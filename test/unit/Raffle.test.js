@@ -4,7 +4,7 @@ const { assert, expect } = require("chai");
 
 !developmentChains.includes(network.name)
     ? describe.skip
-    : describe("Raffle", function () {
+    : describe("Raffle Unit Tests", function () {
           let deployer, VRFCoordinatorV2Mock, raffle, raffleAddress, raffleEntranceFee, interval;
           const chainId = network.config.chainId;
 
@@ -176,14 +176,23 @@ const { assert, expect } = require("chai");
                           console.log("WinnerPicked event fired!");
                           try {
                               const recentWinner = await raffle.getRecentWinner();
-                              console.log(recentWinner);
                               const raffleState = await raffle.getRaffleState();
                               const endingTimeStamp = await raffle.getLastTimeStamp();
                               const numPlayers = await raffle.getNumberOfPlayers();
-
+                              const winnerEndingBalance = await accounts[1].provider.getBalance(
+                                  accounts[1].address,
+                              );
                               assert.equal(numPlayers.toString(), "0");
                               assert.equal(raffleState.toString(), "0");
                               assert(endingTimeStamp > startingTimeStamp);
+                              assert.equal(
+                                  winnerEndingBalance.toString(),
+                                  (
+                                      winnerStartingBalance +
+                                      raffleEntranceFee * BigInt(additionalEntrants) +
+                                      raffleEntranceFee
+                                  ).toString(),
+                              );
                           } catch (e) {
                               reject(e);
                           }
@@ -191,19 +200,15 @@ const { assert, expect } = require("chai");
                       });
                       const tx = await raffle.performUpkeep("0x");
                       const txReceipt = await tx.wait(1);
+                      const winnerStartingBalance = await accounts[1].provider.getBalance(
+                          accounts[1].address,
+                      );
 
                       await VRFCoordinatorV2Mock.fulfillRandomWords(
                           txReceipt.logs[1].args.requestId,
                           raffleAddress,
                       );
                   });
-
-                  //   await expect(
-                  //       VRFCoordinatorV2Mock.fulfillRandomWords(
-                  //           txReceipt.logs[1].args.requestId,
-                  //           raffleAddress,
-                  //       ),
-                  //   ).to.emit(raffle, "WinnerPicked");
               });
           });
       });
