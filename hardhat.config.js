@@ -17,8 +17,14 @@ module.exports = {
         sepolia: {
             url: SEPOLIA_RPC_URL,
             accounts: [PRIVATE_KEY],
+            saveDeployment: true,
             chainId: 11155111,
         },
+    },
+    etherscan: {
+        // Your API key for Etherscan
+        // Obtain one at https://etherscan.io/
+        apiKey: ETHERSCAN_API_KEY,
     },
     gasReporter: {
         enabled: false,

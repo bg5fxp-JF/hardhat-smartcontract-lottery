@@ -193,6 +193,13 @@ const { assert, expect } = require("chai");
                                       raffleEntranceFee
                                   ).toString(),
                               );
+                              console.log(winnerEndingBalance.toString());
+                              console.log(
+                                  winnerStartingBalance +
+                                      raffleEntranceFee * BigInt(additionalEntrants) +
+                                      raffleEntranceFee,
+                              );
+                              console.log(winnerStartingBalance.toString());
                           } catch (e) {
                               reject(e);
                           }

@@ -62,10 +62,10 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
         await vrfCoordinatorV2MockContract.addConsumer(subscriptionId, raffle.address);
     }
 
-    // if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
-    //     // verify
-    //     await verify(raffle.address, args);
-    // }
+    if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
+        // verify
+        await verify(raffle.address, args);
+    }
     log("==========================================================================");
 };
 
