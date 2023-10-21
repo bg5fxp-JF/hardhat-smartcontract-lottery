@@ -62,6 +62,11 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
     }
 
     /* Functions */
+    // * receive function
+    receive() external payable {}
+
+    // * fallback function
+    fallback() external payable {}
 
     /**
      * @dev this is the function that ChainLink Keeper nodes call
